@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Check, Loader2 } from 'lucide-react';
 import { StartupLogo } from './StartupLogo';
@@ -64,12 +64,19 @@ export function SubmitFlow({
   const [priceLoading, setPriceLoading] = useState(false);
   const [boostNumber, setBoostNumber] = useState(1);
   const [startupId, setStartupId] = useState('');
+  const [visitorEmail, setVisitorEmail] = useState('');
   const [form, setForm] = useState({
     url: initialUrl.replace(/^https?:\/\/\/+/, 'https://'),
     name: '',
     category: initialCategory || 'AI',
-    email: '',
   });
+
+  useEffect(() => {
+    const storageKey = 'boostpad-user-id';
+    const storedId = localStorage.getItem(storageKey) || crypto.randomUUID();
+    localStorage.setItem(storageKey, storedId);
+    setVisitorEmail(`${storedId}@users.boostpad.local`);
+  }, []);
 
   const domain = useMemo(() => {
     try {
@@ -85,10 +92,10 @@ export function SubmitFlow({
   const set = (k: string, v: string) => setForm((x) => ({ ...x, [k]: v }));
 
   async function loadCurrentPrice(): Promise<number | null> {
-    if (!form.email) return null;
+    if (!visitorEmail) return null;
     setPriceLoading(true);
     try {
-      const response = await fetch(`/api/boost-price?email=${encodeURIComponent(form.email)}`);
+      const response = await fetch(`/api/boost-price?email=${encodeURIComponent(visitorEmail)}`);
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || 'Could not calculate boost price');
       setAmount(result.amount);
@@ -102,6 +109,10 @@ export function SubmitFlow({
     }
   }
 
+  useEffect(() => {
+    if (visitorEmail) void loadCurrentPrice();
+  }, [visitorEmail]);
+
   const range = boostRange[currency];
   const bumpAmount = (dir: 1 | -1) => setAmount((a) => clampAmount(a + dir * range.step, currency));
 
@@ -113,6 +124,8 @@ export function SubmitFlow({
     try {
       let id = startupId;
 
+      if (!visitorEmail) throw new Error('Could not identify this browser');
+
       const currentAmount = await loadCurrentPrice();
       if (!currentAmount) throw new Error('Could not calculate the current boost price');
 
@@ -123,7 +136,7 @@ export function SubmitFlow({
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             ...form,
-            founderEmail: form.email,
+            founderEmail: visitorEmail,
             url: /^https?:/.test(form.url) ? form.url : `https://${form.url}`,
           }),
         });
@@ -143,7 +156,7 @@ export function SubmitFlow({
           amount: currentAmount,
           currency: 'INR',
           startupId: id,
-          boosterEmail: form.email,
+          boosterEmail: visitorEmail,
         }),
       });
 
@@ -289,19 +302,6 @@ export function SubmitFlow({
                 )}
               </select>
             </div>
-          </div>
-
-          <div>
-            <input
-              id="booster-email"
-              className="field"
-              required
-              type="email"
-              aria-label="Email address"
-              value={form.email}
-              onChange={(e) => set('email', e.target.value)}
-              onBlur={loadCurrentPrice}
-            />
           </div>
 
         </section>
