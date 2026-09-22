@@ -8,6 +8,7 @@ const createOrderSchema = z.object({
   receipt: z.string().optional(),
   notes: z.record(z.string()).optional(),
   startupId: z.string().optional(),
+  boosterEmail: z.string().email('A valid email address is required'),
 });
 
 export async function POST(req: Request) {
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { amount, currency, receipt, notes, startupId } = parsed.data;
+    const { amount, currency, receipt, notes, startupId, boosterEmail } = parsed.data;
 
     // A boost order must always come from Razorpay. Preview orders must not
     // be able to reach the leaderboard without a verified payment.
@@ -65,6 +66,23 @@ export async function POST(req: Request) {
     const db = admin();
     if (!db) {
       return Response.json({ success: false, error: 'Database is not configured. No boost was created.' }, { status: 503 });
+    }
+
+    const normalizedEmail = boosterEmail.trim().toLowerCase();
+    const { count, error: priceError } = await db
+      .from('payments')
+      .select('id, startups!inner(founder_email)', { count: 'exact', head: true })
+      .eq('startups.founder_email', normalizedEmail)
+      .eq('status', 'paid');
+
+    if (priceError) {
+      console.error('[API/create-order] Price lookup error:', priceError);
+      return Response.json({ success: false, error: 'Could not calculate the current boost price.' }, { status: 500 });
+    }
+
+    const currentAmount = 25 + (count ?? 0);
+    if (amount !== currentAmount) {
+      return Response.json({ success: false, error: 'The boost price changed. Refresh the current price and try again.', amount: currentAmount, currency: 'INR' }, { status: 409 });
     }
 
     const { error: paymentError } = await db.from('payments').insert({

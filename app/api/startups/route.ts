@@ -44,7 +44,7 @@ export async function POST(req: Request) {
             description: desc,
             category: input.category,
             founder_name: input.founderName || null,
-            founder_email: input.founderEmail || null,
+            founder_email: input.founderEmail?.trim().toLowerCase() || null,
             logo_url: logoUrl,
           },
           preview: true,
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
         description: desc,
         category: input.category,
         founder_name: input.founderName || null,
-        founder_email: input.founderEmail || null,
+        founder_email: input.founderEmail?.trim().toLowerCase() || null,
         logo_url: logoUrl,
         status: 'active',
       })

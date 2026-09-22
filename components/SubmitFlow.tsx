@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Check, Loader2, Minus, Plus, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, Loader2, ShieldCheck } from 'lucide-react';
 import { StartupLogo } from './StartupLogo';
 import type { RazorpaySuccessHandlerArgs, RazorpayOptions } from '@/global';
 
@@ -61,11 +61,14 @@ export function SubmitFlow({
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [boostNumber, setBoostNumber] = useState(1);
   const [startupId, setStartupId] = useState('');
   const [form, setForm] = useState({
     url: initialUrl.replace(/^https?:\/\/\/+/, 'https://'),
     name: '',
     category: initialCategory || 'AI',
+    email: '',
   });
 
   const domain = useMemo(() => {
@@ -81,21 +84,26 @@ export function SubmitFlow({
 
   const set = (k: string, v: string) => setForm((x) => ({ ...x, [k]: v }));
 
+  async function loadCurrentPrice(): Promise<number | null> {
+    if (!form.email) return null;
+    setPriceLoading(true);
+    try {
+      const response = await fetch(`/api/boost-price?email=${encodeURIComponent(form.email)}`);
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error?.message || 'Could not calculate boost price');
+      setAmount(result.amount);
+      setBoostNumber(result.boostNumber);
+      return result.amount;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not calculate boost price');
+      return null;
+    } finally {
+      setPriceLoading(false);
+    }
+  }
+
   const range = boostRange[currency];
   const bumpAmount = (dir: 1 | -1) => setAmount((a) => clampAmount(a + dir * range.step, currency));
-
-  // Visitors outside India pay in USD ($1 = ₹25 baseline).
-  useEffect(() => {
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      if (!['Asia/Calcutta', 'Asia/Kolkata'].includes(tz)) {
-        setCurrency('USD');
-        setAmount(boostRange.USD.start);
-      }
-    } catch {
-      // Keep INR default if timezone detection fails.
-    }
-  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -105,6 +113,9 @@ export function SubmitFlow({
     try {
       let id = startupId;
 
+      const currentAmount = await loadCurrentPrice();
+      if (!currentAmount) throw new Error('Could not calculate the current boost price');
+
       // 1. Submit or retrieve startup record
       if (!id) {
         const response = await fetch('/api/startups', {
@@ -112,6 +123,7 @@ export function SubmitFlow({
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             ...form,
+            founderEmail: form.email,
             url: /^https?:/.test(form.url) ? form.url : `https://${form.url}`,
           }),
         });
@@ -128,9 +140,10 @@ export function SubmitFlow({
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          amount: currency === 'INR' ? amount : amount * USD_TO_INR,
+          amount: currentAmount,
           currency: 'INR',
           startupId: id,
+          boosterEmail: form.email,
         }),
       });
 
@@ -278,17 +291,30 @@ export function SubmitFlow({
             </div>
           </div>
 
+          <div>
+            <label className="mb-2 block font-bold" htmlFor="booster-email">Your email</label>
+            <input
+              id="booster-email"
+              className="field"
+              required
+              type="email"
+              value={form.email}
+              onChange={(e) => set('email', e.target.value)}
+              onBlur={loadCurrentPrice}
+              placeholder="you@example.com"
+            />
+            <p className="mt-2 text-sm text-[#817a75]">Your email tracks your boost history and next price.</p>
+          </div>
+
         </section>
 
         {/* Boost selector */}
         <section className="border-t border-[#eee5df] pt-7">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <label className="mb-2 block font-bold">Choose your Boost ({currency})</label>
+              <label className="mb-2 block font-bold">Your Boost Price</label>
               <p className="text-sm text-[#817a75]">
-                {currency === 'INR'
-                  ? 'Only verified Razorpay payments affect leaderboard ranks.'
-                  : 'International tiers convert at $1 = ₹25 and are charged in INR. Only verified payments affect ranks.'}
+                {priceLoading ? 'Calculating your current price…' : `Boost #${boostNumber}. Each verified boost increases your next price by ₹1.`}
               </p>
             </div>
             <div className="flex items-center gap-2 text-sm font-bold text-[#fb923c]">
@@ -296,30 +322,8 @@ export function SubmitFlow({
             </div>
           </div>
 
-          <div className="mt-5 flex items-stretch gap-3">
-            <button
-              type="button"
-              onClick={() => bumpAmount(-1)}
-              disabled={amount <= range.min}
-              aria-label="Decrease boost amount"
-              className="grid w-16 shrink-0 place-items-center rounded-2xl border border-[#ded8d2] bg-white text-[#817a75] transition hover:border-[#fb923c] hover:text-[#fb923c] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <Minus size={22} />
-            </button>
-
-            <div className="flex flex-1 items-center justify-center rounded-2xl border border-[#ded8d2] bg-[#f4f1ee] px-4 py-3">
-              <p className="text-3xl font-black">{formatBoost(amount, currency)}</p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => bumpAmount(1)}
-              disabled={amount >= range.max}
-              aria-label="Increase boost amount"
-              className="grid w-16 shrink-0 place-items-center rounded-2xl border border-[#ded8d2] bg-white text-[#817a75] transition hover:border-[#fb923c] hover:text-[#fb923c] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <Plus size={22} />
-            </button>
+          <div className="mt-5 flex items-center justify-center rounded-2xl border border-[#ded8d2] bg-[#f4f1ee] px-4 py-5">
+            <p className="text-3xl font-black">₹{amount.toLocaleString('en-IN')}</p>
           </div>
         </section>
 
