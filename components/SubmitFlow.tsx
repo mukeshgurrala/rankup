@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Check, Loader2, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Check, Loader2 } from 'lucide-react';
 import { StartupLogo } from './StartupLogo';
 import type { RazorpaySuccessHandlerArgs, RazorpayOptions } from '@/global';
 
@@ -316,9 +316,6 @@ export function SubmitFlow({
               <p className="text-sm text-[#817a75]">
                 {priceLoading ? 'Calculating your current price…' : `Boost #${boostNumber}. Each verified boost increases your next price by ₹1.`}
               </p>
-            </div>
-            <div className="flex items-center gap-2 text-sm font-bold text-[#fb923c]">
-              <ShieldCheck size={18} /> Verified Razorpay Checkout
             </div>
           </div>
 
