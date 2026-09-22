@@ -292,18 +292,17 @@ export function SubmitFlow({
           </div>
 
           <div>
-            <label className="mb-2 block font-bold" htmlFor="booster-email">Your email</label>
             <input
               id="booster-email"
               className="field"
               required
               type="email"
+              aria-label="Email address"
               value={form.email}
               onChange={(e) => set('email', e.target.value)}
               onBlur={loadCurrentPrice}
               placeholder="you@example.com"
             />
-            <p className="mt-2 text-sm text-[#817a75]">Your email tracks your boost history and next price.</p>
           </div>
 
         </section>
