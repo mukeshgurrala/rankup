@@ -50,44 +50,42 @@ export async function POST(req: Request) {
       );
     }
 
-    // Persist verified boost to Supabase if database is available
     const db = admin();
-    if (db) {
-      // Find the payment record associated with this Razorpay order
-      const { data: paymentRecord } = await db
-        .from('payments')
-        .select('*')
-        .eq('razorpay_order_id', razorpay_order_id)
-        .maybeSingle();
+    if (!db) {
+      return Response.json({ success: false, error: 'Database is not configured. No boost was created.' }, { status: 503 });
+    }
 
-      if (paymentRecord) {
-        // Idempotency check: if already processed, return success immediately
-        if (paymentRecord.status === 'paid') {
-          return Response.json({
-            success: true,
-            idempotent: true,
-            message: 'Payment was already verified',
-          });
-        }
+    const { data: paymentRecord, error: lookupError } = await db
+      .from('payments')
+      .select('*')
+      .eq('razorpay_order_id', razorpay_order_id)
+      .maybeSingle();
 
-        // Execute transactional RPC to mark payment paid and insert boost record
-        const { error: rpcError } = await db.rpc('verify_payment_and_create_boost', {
-          p_payment_id: paymentRecord.id,
-          p_razorpay_payment_id: razorpay_payment_id,
-          p_signature: razorpay_signature,
-        });
+    if (lookupError) {
+      console.error('[API/verify-payment] Payment lookup error:', lookupError);
+      return Response.json({ success: false, error: 'Could not find payment record.' }, { status: 500 });
+    }
 
-        if (rpcError) {
-          console.error('[API/verify-payment] Database RPC error:', rpcError);
-          return Response.json(
-            {
-              success: false,
-              error: 'Payment was verified with Razorpay, but recording to database failed.',
-            },
-            { status: 500 }
-          );
-        }
-      }
+    if (!paymentRecord) {
+      return Response.json({ success: false, error: 'Payment order was not prepared. No boost was created.' }, { status: 404 });
+    }
+
+    if (paymentRecord.status === 'paid') {
+      return Response.json({ success: true, idempotent: true, message: 'Payment was already verified' });
+    }
+
+    const { error: rpcError } = await db.rpc('verify_payment_and_create_boost', {
+      p_payment_id: paymentRecord.id,
+      p_razorpay_payment_id: razorpay_payment_id,
+      p_signature: razorpay_signature,
+    });
+
+    if (rpcError) {
+      console.error('[API/verify-payment] Database RPC error:', rpcError);
+      return Response.json(
+        { success: false, error: 'Payment was verified with Razorpay, but recording to database failed.' },
+        { status: 500 }
+      );
     }
 
     return Response.json(

@@ -58,18 +58,26 @@ export async function POST(req: Request) {
       },
     });
 
-    // If a startupId is provided and Supabase is configured, record the pending payment
-    if (startupId && !startupId.startsWith('preview_')) {
-      const db = admin();
-      if (db) {
-        await db.from('payments').insert({
-          startup_id: startupId,
-          razorpay_order_id: order.id,
-          amount,
-          currency,
-          status: 'created',
-        });
-      }
+    if (!startupId || startupId.startsWith('preview_')) {
+      return Response.json({ success: false, error: 'A saved startup is required before payment.' }, { status: 400 });
+    }
+
+    const db = admin();
+    if (!db) {
+      return Response.json({ success: false, error: 'Database is not configured. No boost was created.' }, { status: 503 });
+    }
+
+    const { error: paymentError } = await db.from('payments').insert({
+      startup_id: startupId,
+      razorpay_order_id: order.id,
+      amount,
+      currency,
+      status: 'created',
+    });
+
+    if (paymentError) {
+      console.error('[API/create-order] Payment record error:', paymentError);
+      return Response.json({ success: false, error: 'Could not prepare payment record. No boost was created.' }, { status: 500 });
     }
 
     return Response.json(
