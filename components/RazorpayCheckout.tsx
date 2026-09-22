@@ -94,16 +94,8 @@ export function RazorpayCheckout({
         throw new Error(orderData.error || 'Failed to create Razorpay order');
       }
 
-      // If running in development preview mode
       if (orderData.preview) {
-        console.info('Preview checkout completed (mock mode)');
-        onSuccess?.({
-          razorpay_order_id: orderData.order_id,
-          razorpay_payment_id: `pay_mock_${Date.now()}`,
-          razorpay_signature: 'mock_signature',
-        });
-        setIsLoading(false);
-        return;
+        throw new Error('Payment gateway is not configured. No boost was created.');
       }
 
       // Step 3: Configure Razorpay Checkout Modal options

@@ -27,18 +27,13 @@ export async function POST(req: Request) {
 
     const { amount, currency, receipt, notes, startupId } = parsed.data;
 
-    // Check if Razorpay keys are configured
+    // A boost order must always come from Razorpay. Preview orders must not
+    // be able to reach the leaderboard without a verified payment.
     if (!isRazorpayConfigured()) {
-      // In development preview mode without live credentials, return mock preview details
       return Response.json({
-        success: true,
-        preview: true,
-        order_id: `order_mock_${Date.now()}`,
-        amount: amount * 100,
-        currency,
-        key_id: 'rzp_test_placeholder',
-        message: 'Running in preview mode (Razorpay keys not configured)',
-      });
+        success: false,
+        error: 'Payment gateway is not configured. No boost was created.',
+      }, { status: 503 });
     }
 
     const rzp = getRazorpayClient();

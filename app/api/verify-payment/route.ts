@@ -26,13 +26,11 @@ export async function POST(req: Request) {
 
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = parsed.data;
 
-    // Handle preview mode
-    if (razorpay_order_id.startsWith('order_mock_') || !isRazorpayConfigured()) {
+    if (!isRazorpayConfigured() || razorpay_order_id.startsWith('order_mock_')) {
       return Response.json({
-        success: true,
-        preview: true,
-        message: 'Preview payment verified (mock mode)',
-      });
+        success: false,
+        error: 'Payment gateway is not configured. No boost was created.',
+      }, { status: 503 });
     }
 
     // Secure HMAC-SHA256 signature verification

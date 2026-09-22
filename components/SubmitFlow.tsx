@@ -140,9 +140,7 @@ export function SubmitFlow({
       }
 
       if (order.preview) {
-        setPreview(true);
-        setDone(true);
-        return;
+        throw new Error('Payment gateway is not configured. No boost was created.');
       }
 
       // 3. Load SDK & trigger Razorpay Modal
