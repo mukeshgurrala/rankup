@@ -301,7 +301,6 @@ export function SubmitFlow({
               value={form.email}
               onChange={(e) => set('email', e.target.value)}
               onBlur={loadCurrentPrice}
-              placeholder="you@example.com"
             />
           </div>
 
