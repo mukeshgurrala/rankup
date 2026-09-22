@@ -1,0 +1,2 @@
+import Link from 'next/link';import {RefreshCcw} from 'lucide-react';export default function Failed(){return <main className="grain grid min-h-[70vh] place-items-center px-5"><div className="card max-w-lg p-10 text-center shadow-brutal"><div className="text-5xl">↗</div><h1 className="mt-5 text-4xl font-black">Payment not completed</h1><p className="mt-3 text-[#64736b]">No boost was created and you were not charged. You can safely try again.</p><Link href="/submit" className="btn btn-primary mt-7"><RefreshCcw size={18}/> Try again</Link></div></main>
+}

@@ -1,0 +1,1 @@
+export function LogoMark({className='h-10 w-10'}:{className?:string}){return <span className={`grid shrink-0 place-items-center rounded-xl bg-[#fb923c] font-black text-white ${className}`} aria-label="RankUp logo">A</span>}
