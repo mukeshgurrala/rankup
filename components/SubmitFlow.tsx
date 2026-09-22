@@ -247,25 +247,27 @@ export function SubmitFlow({
   return (
     <form onSubmit={submit} className="card overflow-hidden shadow-brutal">
       <div className="border-b border-[#eee5df] bg-[#fff7ed] p-6 sm:p-8">
-        <p className="text-sm font-black uppercase tracking-[.16em] text-[#fb923c]">Submit Startup</p>
-        <h2 className="mt-2 text-3xl font-black">One page. One verified rank.</h2>
-        <p className="mt-2 text-[#817a75]">Enter your startup details, choose a boost, and pay securely.</p>
+        <div className="flex items-start justify-between gap-5">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[.2em] text-[#fb923c]">01 / Publish</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">One verified rank.</h2>
+            <p className="mt-2 max-w-md text-[#817a75]">Put your product in front of people already looking for what you built.</p>
+          </div>
+          <div className="hidden h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#171717] text-xl font-black text-white sm:grid">↗</div>
+        </div>
       </div>
 
       <div className="space-y-7 p-6 sm:p-9">
-        {/* Startup details */}
         <section className="space-y-5">
           <div>
-            <label className="mb-2 block font-bold">Startup Website</label>
-            <div>
-              <input
-                className="field"
-                required
-                placeholder="https://yourstartup.com"
-                value={form.url}
-                onChange={(e) => set('url', e.target.value)}
-              />
-            </div>
+            <label className="mb-2 block text-sm font-black uppercase tracking-[.12em] text-[#817a75]">Website</label>
+            <input
+              className="field"
+              required
+              placeholder="https://yourstartup.com"
+              value={form.url}
+              onChange={(e) => set('url', e.target.value)}
+            />
             {domain && (
               <div className="mt-3 flex items-center gap-3 rounded-2xl bg-[#f4f1ee] p-3">
                 <StartupLogo domain={domain} name={form.name || domain} className="h-14 w-14" />
@@ -277,9 +279,9 @@ export function SubmitFlow({
             )}
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-[1.2fr_.8fr]">
             <div>
-              <label className="mb-2 block font-bold">Startup Name</label>
+              <label className="mb-2 block text-sm font-black uppercase tracking-[.12em] text-[#817a75]">Name</label>
               <input
                 className="field"
                 required
@@ -289,7 +291,7 @@ export function SubmitFlow({
               />
             </div>
             <div>
-              <label className="mb-2 block font-bold">Category</label>
+              <label className="mb-2 block text-sm font-black uppercase tracking-[.12em] text-[#817a75]">Category</label>
               <select
                 className="field"
                 value={form.category}
@@ -306,19 +308,13 @@ export function SubmitFlow({
 
         </section>
 
-        {/* Boost selector */}
         <section className="border-t border-[#eee5df] pt-7">
-          <div className="flex flex-wrap items-end justify-between gap-2">
+          <div className="flex items-end justify-between gap-4 rounded-2xl bg-[#171717] p-5 text-white sm:p-6">
             <div>
-              <label className="mb-2 block font-bold">Your Boost Price</label>
-              <p className="text-sm text-[#817a75]">
-                {priceLoading ? 'Calculating your current price…' : `Boost #${boostNumber}. Each verified boost increases your next price by ₹1.`}
-              </p>
+              <p className="text-xs font-black uppercase tracking-[.16em] text-[#fdba74]">Boost {boostNumber}</p>
+              <p className="mt-2 text-sm text-[#d6d3d1]">{priceLoading ? 'Updating price…' : 'Your current publishing price'}</p>
             </div>
-          </div>
-
-          <div className="mt-5 flex items-center justify-center rounded-2xl border border-[#ded8d2] bg-[#f4f1ee] px-4 py-5">
-            <p className="text-3xl font-black">₹{amount.toLocaleString('en-IN')}</p>
+            <p className="text-4xl font-black tracking-tight">₹{amount.toLocaleString('en-IN')}</p>
           </div>
         </section>
 
@@ -328,7 +324,7 @@ export function SubmitFlow({
           </div>
         )}
 
-        <button disabled={busy} className="btn btn-primary w-full py-4 text-base">
+        <button disabled={busy || priceLoading} className="btn btn-primary w-full py-4 text-base">
           {busy ? (
             <>
               <Loader2 className="animate-spin" />
@@ -336,7 +332,7 @@ export function SubmitFlow({
             </>
           ) : (
             <>
-              Submit Startup & Boost {formatBoost(amount, currency)}
+              Publish & boost for {formatBoost(amount, currency)}
               <ArrowRight size={18} />
             </>
           )}
