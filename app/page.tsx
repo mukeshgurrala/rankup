@@ -1,3 +1,111 @@
-import Link from 'next/link';import {Trophy,Flame,ArrowRight,Clock3} from 'lucide-react';import {ClaimRank} from '@/components/ClaimRank';import {money} from '@/lib/data';import {getLeaderboard} from '@/lib/queries';import {StartupLogo} from '@/components/StartupLogo';
-export const dynamic='force-dynamic';export default async function Home(){const startups=await getLeaderboard();return <main className="min-h-screen bg-[#fffdf9] text-[#171717]"><section className="px-5 pb-12 pt-8 sm:pt-12"><div className="mx-auto max-w-6xl"><div className="mx-auto flex w-fit rounded-full border border-[#e3dcd6] bg-white p-1 text-sm font-bold"><button className="flex items-center gap-1.5 rounded-full bg-[#fb923c] px-4 py-2 text-white"><Trophy size={15}/> All-time</button><Link href="/today" className="flex items-center gap-2 px-4 py-2 text-[#fb923c]"><span className="h-2 w-2 rounded-full bg-[#fb923c]"/> Today</Link></div><div className="py-8 text-center sm:py-10"><p className="mb-3 text-sm font-bold uppercase tracking-[.2em] text-[#fb923c]">The transparent product leaderboard</p><h1 className="text-4xl font-black tracking-[-.04em] sm:text-6xl">Claim #1 for <span className="text-[#fb923c]">$1</span></h1><p className="mx-auto mt-4 max-w-xl text-[#77716c]">Add your product, start with one dollar, and climb through verified boosts from real supporters.</p></div><ClaimRank/></div></section><section id="rankings" className="mx-auto max-w-6xl px-5 pb-20"><div className="grid gap-8 lg:grid-cols-[1fr_300px]"><div><div className="mb-4 flex items-center justify-between"><h2 className="flex items-center gap-2 text-lg font-black"><Flame className="text-[#fb923c]" size={20}/> All-time ranking</h2><span className="text-sm text-[#8f8a85]">Verified boosts only</span></div>{startups.length?<div className="space-y-3">{startups.map((s,i)=><Link href={`/startup/${s.slug}`} key={s.id} className="grid grid-cols-[42px_58px_1fr_auto] items-center gap-3 rounded-[24px] bg-[#ffedd5] p-4 transition hover:-translate-y-0.5 hover:shadow-lg"><b className="text-xl text-[#fb923c]">#{i+1}</b><StartupLogo domain={s.domain} name={s.name} className="h-14 w-14 rounded-2xl"/><div className="min-w-0"><h3 className="truncate font-black">{s.name}</h3><p className="truncate text-sm text-[#8f8a85]">{s.description}</p><span className="text-xs font-bold">{s.category}</span></div><b className="text-[#fb923c]">{money(s.total)}</b></Link>)}</div>:<EmptyBoard/>}</div><aside><div className="mb-4 flex items-center justify-between"><h2 className="flex items-center gap-2 font-black"><span className="h-2 w-2 rounded-full bg-[#fb923c]"/> Today’s ranking</h2><span className="text-sm text-[#fb923c]">See all ›</span></div><div className="rounded-[24px] border border-[#eee5df] bg-white p-6"><div className="grid place-items-center py-7 text-center"><Clock3 className="text-[#fb923c]"/><h3 className="mt-3 font-black">No ranks yet today</h3><p className="mt-1 text-sm text-[#8f8a85]">The first verified boost takes the top spot.</p><Link href="/submit" className="mt-5 text-sm font-black text-[#fb923c]">Claim #1 →</Link></div></div></aside></div></section></main>}
-function EmptyBoard(){return <div className="rounded-[28px] bg-[#ffedd5] px-6 py-12 text-center sm:px-12"><div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#171717] text-2xl text-white">↗</div><h2 className="mt-5 text-2xl font-black">This leaderboard is yours.</h2><p className="mx-auto mt-2 max-w-md text-[#817a75]">No products have claimed a rank yet. Add your URL and become the first product discovered.</p><Link href="/submit" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#fb923c] px-6 py-3 font-black text-white">Add your product <ArrowRight size={18}/></Link></div>}
+import Link from 'next/link';
+import { ActivityFeed } from '@/components/ActivityFeed';
+import { BoardToggle } from '@/components/BoardToggle';
+import { ClaimBar } from '@/components/ClaimBar';
+import { Pagination } from '@/components/Pagination';
+import { ProductRow } from '@/components/ProductRow';
+import { StatsBar } from '@/components/StatsBar';
+import { TodayWidget } from '@/components/TodayWidget';
+import { PAGE_SIZE, priceForTop } from '@/lib/data';
+import { getActivity, getBoard, getStats, getTopProducts, type Board } from '@/lib/queries';
+
+export const dynamic = 'force-dynamic';
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ board?: string; page?: string }>;
+}) {
+  const sp = await searchParams;
+  const board: Board = sp.board === 'today' ? 'today' : 'all-time';
+  const page = Math.max(1, Number(sp.page ?? '1') || 1);
+
+  const [boardPage, todayTop, activity, stats, allTimeTop] = await Promise.all([
+    getBoard({ board, page, pageSize: PAGE_SIZE }),
+    getTopProducts('today', 5),
+    getActivity(10),
+    getStats(),
+    getTopProducts('all-time', 1),
+  ]);
+
+  const claimPrice = priceForTop(allTimeTop[0]?.bid);
+
+  return (
+    <main className="bg-paper-warmth">
+      <div className="mx-auto max-w-[1180px] px-5 py-8">
+        {/* ---- Hero / claim ---- */}
+        <section className="mb-6">
+          <h1 className="t-display-sm max-w-2xl text-ink-black">
+            Buy your way to{' '}
+            <span className="highlight-pill" style={{ background: 'var(--color-money-tint)', color: 'var(--color-money)' }}>
+              #1
+            </span>
+          </h1>
+          <p className="t-editorial mt-3 max-w-xl">
+            A leaderboard with one rule: outbid the product above you by a dollar. Every rank is
+            public, every bid is verified, every click goes to the product.
+          </p>
+
+          <div className="mt-6">
+            <ClaimBar minimum={claimPrice} />
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <StatsBar stats={stats} />
+        </section>
+
+        {/* ---- Board + sidebar ---- */}
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+          <section>
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <BoardToggle board={board} />
+              <Link
+                href="/categories"
+                className="transition-notion font-mono text-[12px] text-black/50 hover:text-notion-blue"
+              >
+                browse categories →
+              </Link>
+            </div>
+
+            {boardPage.products.length === 0 ? (
+              <div className="card p-10 text-center">
+                <h2 className="t-heading-sm text-ink-black">
+                  {board === 'today' ? 'No bids today yet' : 'No products ranked yet'}
+                </h2>
+                <p className="t-body mx-auto mt-2 max-w-sm">
+                  {board === 'today'
+                    ? 'Today’s board opens with the first verified bid of the UTC day.'
+                    : 'The board is empty. The first $1 bid takes rank #1.'}
+                </p>
+                <Link href="/claim?rank=1" className="btn btn-primary mt-5">
+                  Claim #1 for ${claimPrice}
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  {boardPage.products.map((p, i) => (
+                    <ProductRow key={p.id} product={p} rank={boardPage.offset + i + 1} />
+                  ))}
+                </div>
+                <Pagination
+                  page={page}
+                  pageSize={PAGE_SIZE}
+                  total={boardPage.total}
+                  basePath="/"
+                  params={{ board: board === 'today' ? 'today' : undefined }}
+                />
+              </>
+            )}
+          </section>
+
+          <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
+            <TodayWidget products={todayTop} />
+            <ActivityFeed initial={activity} />
+          </aside>
+        </div>
+      </div>
+    </main>
+  );
+}

@@ -1,5 +1,55 @@
 'use client';
-import Link from 'next/link';import {usePathname} from 'next/navigation';import {ArrowUpRight} from 'lucide-react';import {LogoMark} from './LogoMark';
-const links=[['Today','/today'],['Daily','/daily'],['Categories','/categories'],['About','/about'],['Rules','/rules']];
-export function Header(){const pathname=usePathname();return <><header className="sticky top-0 z-50 border-b border-[#eee9e4] bg-[#fffdf9]/95 backdrop-blur"><div className="mx-auto max-w-6xl px-4"><div className="flex min-h-16 items-center justify-between gap-4"><div className="flex shrink-0 items-center gap-4"><Link href="/" className="flex items-center gap-2 text-lg font-black tracking-tight sm:text-xl"><LogoMark className="h-10 w-10"/><span>RankUp</span></Link></div><nav className="flex items-center gap-3 overflow-x-auto whitespace-nowrap text-xs font-bold [scrollbar-width:none] sm:gap-5 sm:text-sm">{links.map(([label,href])=><Link href={href} key={label} className="transition hover:text-[#fb923c]">{label}</Link>)}<Link href="/submit" className="flex items-center gap-1 rounded-full bg-[#171717] px-3 py-2 text-white sm:px-5 sm:py-2.5">Add product <ArrowUpRight className="hidden sm:block" size={15}/></Link></nav></div></div></header>{pathname==='/'&&<CategoryNav/>}</>}
-function CategoryNav(){const cats=['All','Leaderboards','Marketing','SEO','Productivity','Agents','Crypto','Developer','Other','Explore'];return <div className="bg-[#fffdf9] px-5 pt-5"><nav className="mx-auto flex max-w-5xl gap-1 overflow-x-auto rounded-full bg-[#f4f1ee] p-1.5 text-sm font-bold [scrollbar-width:none]">{cats.map((name,i)=><Link href={i===0?'/#rankings':'/categories'} key={name} className={`shrink-0 rounded-full px-3 py-2 ${i===0?'bg-[#fb923c] text-white':'hover:bg-white'}`}>{name}</Link>)}</nav></div>}
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { LogoMark } from './LogoMark';
+import { LiveBadge } from './LiveBadge';
+
+const links: [string, string][] = [
+  ['Daily', '/?board=today'],
+  ['Categories', '/categories'],
+  ['About', '/about'],
+  ['Rules', '/rules'],
+];
+
+export function Header() {
+  const pathname = usePathname();
+
+  return (
+    <header className="elev-nav sticky top-0 z-50 border-b border-hairline bg-paper-warmth/90 backdrop-blur">
+      <div className="mx-auto max-w-[1180px] px-5">
+        <div className="flex h-14 items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex shrink-0 items-center gap-2 text-[15px] font-semibold tracking-[-0.3px] text-ink-black"
+            >
+              <LogoMark className="h-7 w-7" />
+              RankUp
+            </Link>
+            <LiveBadge />
+          </div>
+
+          <nav className="flex items-center gap-1">
+            {links.map(([label, href]) => {
+              const active = pathname === href.split('?')[0] && href !== '/?board=today';
+              return (
+                <Link
+                  key={label}
+                  href={href}
+                  className="transition-notion hidden rounded-buttons px-3 py-2 text-[13px] font-medium hover:bg-black/[0.04] sm:block"
+                  style={{ color: active ? 'var(--color-notion-blue)' : 'rgba(0,0,0,0.54)' }}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+            <Link href="/claim?rank=1" className="btn btn-primary ml-1">
+              Claim a rank
+            </Link>
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
+}

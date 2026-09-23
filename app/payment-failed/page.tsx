@@ -1,2 +1,25 @@
-import Link from 'next/link';import {RefreshCcw} from 'lucide-react';export default function Failed(){return <main className="grain grid min-h-[70vh] place-items-center px-5"><div className="card max-w-lg p-10 text-center shadow-brutal"><div className="text-5xl">↗</div><h1 className="mt-5 text-4xl font-black">Payment not completed</h1><p className="mt-3 text-[#64736b]">No boost was created and you were not charged. You can safely try again.</p><Link href="/submit" className="btn btn-primary mt-7"><RefreshCcw size={18}/> Try again</Link></div></main>
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { RefreshCcw } from 'lucide-react';
+
+export const metadata: Metadata = { title: 'Payment not completed' };
+
+export default function PaymentFailedPage() {
+  return (
+    <main className="grid min-h-[70vh] place-items-center bg-paper-warmth px-5 py-16">
+      <div className="card max-w-md p-8 text-center">
+        <h1 className="t-heading text-ink-black">Payment not completed</h1>
+        <p className="t-body mt-2">
+          No bid was recorded and you were not charged. Your rank is unchanged, so it is safe to
+          try again.
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <Link href="/claim?rank=1" className="btn btn-primary btn-lg">
+            <RefreshCcw size={16} /> Try again
+          </Link>
+          <Link href="/" className="btn btn-text btn-lg">Back to the board</Link>
+        </div>
+      </div>
+    </main>
+  );
 }

@@ -1,1 +1,40 @@
-import Link from 'next/link';import {Bot,Search, Megaphone,Gamepad2,Code2,Leaf,BookOpen,ArrowUpRight} from 'lucide-react';import {ContentPage,PageIntro} from '@/components/SitePrimitives';const cats=[['AI & Automation',Bot],['SEO & Discovery',Search],['Marketing & Growth',Megaphone],['Games & Entertainment',Gamepad2],['Developer Tools',Code2],['Climate & Impact',Leaf],['Learning & Education',BookOpen]];export default function Categories(){return <ContentPage><PageIntro eyebrow="Find your lane" title="Categories"><p>Every category has its own focused ranking. Choose one to discover what is gaining verified momentum.</p></PageIntro><div className="mb-8 rounded-[28px] bg-[#f4f1ee] p-6"><b><span className="text-[#fb923c]">●</span> Most active categories</b><p className="mt-1 text-sm text-[#756e69]">Ranks will appear here as the community adds and boosts products.</p></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{cats.map(([name,Icon])=><Link href={`/submit?category=${encodeURIComponent(name as string)}`} key={name as string} className="group rounded-[24px] border border-[#e7ded8] bg-white p-6 transition hover:-translate-y-1 hover:border-[#fb923c] hover:shadow-lg"><Icon className="text-[#fb923c]"/><div className="mt-5 flex items-center justify-between"><h2 className="font-black">{name as string}</h2><ArrowUpRight className="transition group-hover:translate-x-1 group-hover:-translate-y-1" size={18}/></div><p className="mt-2 text-sm text-[#817a75]">No ranked products yet</p></Link>)}</div></ContentPage>}
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ContentPage, PageIntro } from '@/components/SitePrimitives';
+import { CATEGORIES, categorySlug } from '@/lib/categories';
+import { getCategoryCounts } from '@/lib/queries';
+import { compact } from '@/lib/data';
+
+export const metadata: Metadata = { title: 'Categories' };
+export const dynamic = 'force-dynamic';
+
+export default async function CategoriesPage() {
+  const counts = await getCategoryCounts();
+
+  return (
+    <ContentPage>
+      <PageIntro eyebrow="Browse" title="Categories">
+        Every category has its own ranked board. Counts are live listings with a verified standing
+        bid.
+      </PageIntro>
+
+      <div className="card divide-y divide-hairline overflow-hidden">
+        {CATEGORIES.map((name) => {
+          const count = counts[name] ?? 0;
+          return (
+            <Link
+              key={name}
+              href={`/category/${categorySlug(name)}`}
+              className="transition-notion flex items-center justify-between gap-4 px-4 py-3 hover:bg-black/[0.02]"
+            >
+              <span className="text-[14px] text-ink-black">{name}</span>
+              <span className="font-mono text-[12px] tabular-nums text-black/40">
+                {count > 0 ? `${compact(count)} listed` : '—'}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+    </ContentPage>
+  );
+}

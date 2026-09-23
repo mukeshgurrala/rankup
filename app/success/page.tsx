@@ -1,2 +1,24 @@
-import Link from 'next/link';import {Check,ArrowRight} from 'lucide-react';export default function Success(){return <main className="grain grid min-h-[70vh] place-items-center px-5"><div className="card max-w-lg p-10 text-center shadow-brutal"><div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-[#10221b] bg-[#c9ff57]"><Check size={40}/></div><h1 className="mt-6 text-4xl font-black">Boost verified!</h1><p className="mt-3 text-[#64736b]">Your support is live and the leaderboard has been updated.</p><Link href="/" className="btn btn-primary mt-7">See the leaderboard <ArrowRight size={18}/></Link></div></main>
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { ArrowRight, Check } from 'lucide-react';
+
+export const metadata: Metadata = { title: 'Bid verified' };
+
+export default function SuccessPage() {
+  return (
+    <main className="grid min-h-[70vh] place-items-center bg-paper-warmth px-5 py-16">
+      <div className="card max-w-md p-8 text-center">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-pills bg-money text-pure-white">
+          <Check size={24} />
+        </div>
+        <h1 className="t-heading mt-5 text-ink-black">Bid verified</h1>
+        <p className="t-body mt-2">
+          Your payment cleared and the leaderboard has been updated with your new position.
+        </p>
+        <Link href="/" className="btn btn-primary btn-lg mt-6">
+          View the leaderboard <ArrowRight size={16} />
+        </Link>
+      </div>
+    </main>
+  );
 }
