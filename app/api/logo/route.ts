@@ -1,1 +1,27 @@
-import {normalizeUrl} from '@/lib/validation';import {error} from '@/lib/server';export async function GET(req:Request){try{const raw=new URL(req.url).searchParams.get('url');if(!raw)return error('URL is required');const {domain}=normalizeUrl(raw);if(['localhost','127.0.0.1','0.0.0.0'].includes(domain)||domain.endsWith('.local'))return error('Private hosts are not allowed');return Response.json({domain,logoUrl:`https://unavatar.io/${encodeURIComponent(domain)}`,fallback:domain.slice(0,2).toUpperCase()})}catch{return error('Invalid URL')}}
+import { normalizeUrl } from '@/lib/validation';
+import { error } from '@/lib/server';
+import { faviconUrl } from '@/lib/data';
+
+/** Resolves a URL to its domain and favicon. */
+export async function GET(req: Request) {
+  try {
+    const raw = new URL(req.url).searchParams.get('url');
+    if (!raw) return error('URL is required');
+
+    const { domain } = normalizeUrl(raw);
+    if (
+      ['localhost', '127.0.0.1', '0.0.0.0'].includes(domain) ||
+      domain.endsWith('.local')
+    ) {
+      return error('Private hosts are not allowed');
+    }
+
+    return Response.json({
+      domain,
+      logoUrl: faviconUrl(domain),
+      fallback: domain.slice(0, 2).toUpperCase(),
+    });
+  } catch {
+    return error('Invalid URL');
+  }
+}

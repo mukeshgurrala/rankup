@@ -23,10 +23,13 @@ export default {
         'sky-wash': '#62aef0',
         'midnight-ink': '#02093a',
         hairline: 'rgba(0,0,0,0.08)',
+        money: '#0f8f4e',
+        'money-tint': '#e8f6ee',
       },
       fontFamily: {
         notioninter: ['var(--font-notioninter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         lyon: ['var(--font-lyon-text)', 'Georgia', 'serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
         small: '4px',

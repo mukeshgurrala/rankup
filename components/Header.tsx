@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LogoMark } from './LogoMark';
+import { LiveBadge } from './LiveBadge';
 
 const links: [string, string][] = [
-  ['Today', '/today'],
-  ['Daily', '/daily'],
+  ['Daily', '/?board=today'],
   ['Categories', '/categories'],
   ['About', '/about'],
   ['Rules', '/rules'],
@@ -16,60 +16,40 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <>
-      <header className="elev-nav sticky top-0 z-50 bg-paper-warmth/90 backdrop-blur">
-        <div className="mx-auto max-w-page px-6">
-          <div className="flex h-16 items-center justify-between gap-6">
+    <header className="elev-nav sticky top-0 z-50 border-b border-hairline bg-paper-warmth/90 backdrop-blur">
+      <div className="mx-auto max-w-[1180px] px-5">
+        <div className="flex h-14 items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="flex shrink-0 items-center gap-2 text-[16px] font-semibold tracking-[-0.3px] text-ink-black"
+              className="flex shrink-0 items-center gap-2 text-[15px] font-semibold tracking-[-0.3px] text-ink-black"
             >
-              <LogoMark className="h-8 w-8" />
-              <span>RankUp</span>
+              <LogoMark className="h-7 w-7" />
+              RankUp
             </Link>
-
-            <nav className="hidden items-center gap-1 md:flex">
-              {links.map(([label, href]) => {
-                const active = pathname === href;
-                return (
-                  <Link
-                    key={label}
-                    href={href}
-                    className="transition-notion rounded-buttons px-4 py-3 text-[14px] font-medium leading-[1.43] hover:bg-black/[0.04]"
-                    style={{ color: active ? 'var(--color-notion-blue)' : 'rgba(0,0,0,0.54)' }}
-                  >
-                    {label}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            <div className="flex items-center gap-2">
-              <Link href="/today" className="btn btn-text hidden sm:inline-flex">
-                Browse
-              </Link>
-              <Link href="/submit" className="btn btn-primary">
-                Add product
-              </Link>
-            </div>
+            <LiveBadge />
           </div>
-        </div>
-      </header>
 
-      <nav className="border-b border-hairline bg-paper-warmth md:hidden">
-        <div className="flex gap-1 overflow-x-auto px-6 py-2 [scrollbar-width:none]">
-          {links.map(([label, href]) => (
-            <Link
-              key={label}
-              href={href}
-              className="transition-notion shrink-0 rounded-buttons px-3 py-2 text-[14px] font-medium"
-              style={{ color: pathname === href ? 'var(--color-notion-blue)' : 'rgba(0,0,0,0.54)' }}
-            >
-              {label}
+          <nav className="flex items-center gap-1">
+            {links.map(([label, href]) => {
+              const active = pathname === href.split('?')[0] && href !== '/?board=today';
+              return (
+                <Link
+                  key={label}
+                  href={href}
+                  className="transition-notion hidden rounded-buttons px-3 py-2 text-[13px] font-medium hover:bg-black/[0.04] sm:block"
+                  style={{ color: active ? 'var(--color-notion-blue)' : 'rgba(0,0,0,0.54)' }}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+            <Link href="/claim?rank=1" className="btn btn-primary ml-1">
+              Claim a rank
             </Link>
-          ))}
+          </nav>
         </div>
-      </nav>
-    </>
+      </div>
+    </header>
   );
 }
