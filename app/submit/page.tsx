@@ -1,1 +1,31 @@
-import {SubmitFlow} from '@/components/SubmitFlow';import {BadgeCheck} from 'lucide-react';export default async function Submit({searchParams}:{searchParams:Promise<{url?:string;category?:string}>}){const query=await searchParams;return <main className="min-h-[85vh] bg-[#fffdf9]"><div className="mx-auto max-w-3xl px-5 py-12 sm:py-16"><div className="mb-8 text-center"><div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-[#e3dcd6] bg-white px-4 py-2 text-sm font-bold"><BadgeCheck className="text-[#fb923c]" size={16}/> No account required</div><h1 className="text-4xl font-black tracking-[-.04em] sm:text-6xl">Add your startup.</h1><p className="mx-auto mt-4 max-w-xl text-lg text-[#817a75]">Submit and boost your product from one simple page.</p></div><SubmitFlow initialUrl={query.url||''} initialCategory={query.category||'AI'}/></div></main>}
+import { SubmitFlow } from '@/components/SubmitFlow';
+import { MarkRow } from '@/components/Marks';
+
+export default async function Submit({
+  searchParams,
+}: {
+  searchParams: Promise<{ url?: string; category?: string }>;
+}) {
+  const query = await searchParams;
+
+  return (
+    <main className="min-h-[85vh] bg-paper-warmth">
+      <div className="mx-auto max-w-2xl px-6 py-16 sm:py-20">
+        <div className="mb-12 text-center">
+          <MarkRow count={5} className="mb-8" />
+          <h1 className="t-display-sm text-ink-black">
+            Add your{' '}
+            <span className="highlight-pill" style={{ background: 'var(--color-marigold)' }}>
+              product
+            </span>
+          </h1>
+          <p className="t-editorial mx-auto mt-5 max-w-md">
+            Submit and boost from one simple page. No account, no waiting for approval.
+          </p>
+        </div>
+
+        <SubmitFlow initialUrl={query.url || ''} initialCategory={query.category || 'AI'} />
+      </div>
+    </main>
+  );
+}

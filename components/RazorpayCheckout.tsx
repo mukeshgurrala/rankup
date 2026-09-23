@@ -112,7 +112,7 @@ export function RazorpayCheckout({
           contact: prefill?.contact || '',
         },
         theme: {
-          color: '#fb923c', // BoostPad accent color
+          color: '#0075de', // Notion blue — primary action
         },
         modal: {
           ondismiss: () => {
@@ -183,7 +183,7 @@ export function RazorpayCheckout({
         disabled={isLoading || disabled}
         className={
           className ||
-          'inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#fb923c] px-6 py-4 font-black text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#ea580c] disabled:opacity-60 disabled:hover:translate-y-0'
+          'btn btn-primary btn-lg w-full'
         }
       >
         {isLoading ? (

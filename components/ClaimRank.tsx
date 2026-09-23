@@ -1,3 +1,72 @@
 'use client';
-import {useRouter} from 'next/navigation';import {useState} from 'react';import {Globe2,ChevronDown} from 'lucide-react';
-export function ClaimRank(){const router=useRouter(),[url,setUrl]=useState(''),[category,setCategory]=useState('');function go(e:React.FormEvent){e.preventDefault();const q=new URLSearchParams();if(url)q.set('url',url);if(category)q.set('category',category);router.push(`/submit?${q}`)}return <form onSubmit={go} className="mx-auto grid w-full max-w-4xl gap-3 md:grid-cols-[1fr_260px_150px]"><label className="relative"><Globe2 className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8f8a85]" size={19}/><input required value={url} onChange={e=>setUrl(e.target.value)} className="h-14 w-full rounded-full border border-[#ded8d2] bg-white pl-12 pr-5 outline-none transition focus:border-[#fb923c] focus:ring-4 focus:ring-[#fb923c]/10" placeholder="Your product URL or @handle"/></label><label className="relative"><select required value={category} onChange={e=>setCategory(e.target.value)} className="h-14 w-full appearance-none rounded-full border border-[#ded8d2] bg-white px-5 outline-none focus:border-[#fb923c]"><option value="">Choose a category</option>{['AI','Marketing','SEO','Productivity','Agents','Crypto','Developer','Other'].map(x=><option key={x}>{x}</option>)}</select><ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2" size={16}/></label><button className="h-14 rounded-full bg-[#fdba74] px-6 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-[#ea580c]">Claim rank</button></form>}
+
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+
+const CATEGORIES = [
+  'AI',
+  'Marketing',
+  'SEO',
+  'Productivity',
+  'Agents',
+  'Crypto',
+  'Developer',
+  'Other',
+];
+
+export function ClaimRank() {
+  const router = useRouter();
+  const [url, setUrl] = useState('');
+  const [category, setCategory] = useState('');
+
+  function go(e: React.FormEvent) {
+    e.preventDefault();
+    const q = new URLSearchParams();
+    if (url) q.set('url', url);
+    if (category) q.set('category', category);
+    router.push(`/submit?${q}`);
+  }
+
+  return (
+    <form
+      onSubmit={go}
+      className="elev-mockup mx-auto mt-14 max-w-3xl rounded-cards border border-hairline bg-pure-white p-4"
+    >
+      <div className="grid gap-2 md:grid-cols-[1fr_200px_auto]">
+        <input
+          required
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          className="field"
+          placeholder="https://yourproduct.com"
+          aria-label="Product URL"
+        />
+        <div className="relative">
+          <select
+            required
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="field appearance-none pr-9"
+            aria-label="Category"
+          >
+            <option value="">Choose a category</option>
+            {CATEGORIES.map((x) => (
+              <option key={x}>{x}</option>
+            ))}
+          </select>
+          <ChevronDown
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black/40"
+            size={15}
+          />
+        </div>
+        <button type="submit" className="btn btn-primary">
+          Claim rank
+        </button>
+      </div>
+      <p className="t-caption mt-3 px-1 text-black/40">
+        No account required · minimum verified boost is $1
+      </p>
+    </form>
+  );
+}

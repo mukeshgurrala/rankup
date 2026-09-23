@@ -1,1 +1,59 @@
-import Link from 'next/link';import {CalendarDays,Clock3} from 'lucide-react';import {ContentPage,PageIntro} from '@/components/SitePrimitives';export default function Daily(){const date=new Intl.DateTimeFormat('en-US',{dateStyle:'long',timeZone:'UTC'}).format(new Date());return <ContentPage><PageIntro eyebrow="Fresh every UTC day" title="Daily board"><p>Every day gets a clean leaderboard. Boosts made today shape today’s rank; when midnight UTC arrives, the board closes and becomes an archive.</p></PageIntro><section className="rounded-[28px] border-2 border-[#fb923c] bg-[#fff7ed] p-5 sm:p-7"><div className="flex flex-col justify-between gap-3 sm:flex-row"><div><div className="flex items-center gap-3"><h2 className="text-xl font-black">{date}</h2><span className="rounded-full bg-[#fb923c] px-3 py-1 text-xs font-black text-white">● Live</span></div><p className="mt-2 text-sm text-[#fb923c]">Open for new products and verified boosts until midnight UTC.</p></div><div className="flex items-center gap-2 text-sm font-bold text-[#fb923c]"><Clock3 size={17}/> Live now</div></div><div className="mt-6 rounded-[22px] bg-white p-10 text-center"><CalendarDays className="mx-auto text-[#fb923c]"/><h3 className="mt-3 text-xl font-black">Today’s top spot is open</h3><p className="mt-2 text-[#817a75]">Add your product and claim the first daily rank from $1.</p><Link href="/submit" className="btn btn-primary mt-5">Claim today’s rank</Link></div></section></ContentPage>}
+import Link from 'next/link';
+import { ContentPage, PageIntro } from '@/components/SitePrimitives';
+import { CharacterMark, Squiggle } from '@/components/Marks';
+
+export default function Daily() {
+  const date = new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeZone: 'UTC' }).format(
+    new Date()
+  );
+
+  return (
+    <ContentPage>
+      <PageIntro eyebrow="Fresh every UTC day" title="Daily board">
+        Every day gets a clean leaderboard. Boosts made today shape today’s rank; when midnight UTC
+        arrives, the board closes and becomes an archive.
+      </PageIntro>
+
+      <section className="card-accent p-6 sm:p-8" style={{ background: 'var(--color-sky-wash)' }}>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="t-heading-sm text-ink-black">{date}</h2>
+              <span className="pill bg-pure-white text-ink-black">● Live</span>
+            </div>
+            <p className="mt-2 text-[14px] leading-[1.43] text-black/70">
+              Open for new products and verified boosts until midnight UTC.
+            </p>
+          </div>
+          <Squiggle color="#02093a" className="mt-2" />
+        </div>
+
+        <div className="elev-mockup mt-8 rounded-buttons bg-pure-white px-6 py-12 text-center">
+          <div className="mx-auto w-fit">
+            <CharacterMark index={3} size={48} />
+          </div>
+          <h3 className="t-heading mt-5 text-ink-black">Today’s top spot is open</h3>
+          <p className="t-editorial mx-auto mt-3 max-w-sm">
+            Add your product and claim the first daily rank from $1.
+          </p>
+          <Link href="/submit" className="btn btn-primary btn-lg mt-7">
+            Claim today’s rank
+          </Link>
+        </div>
+      </section>
+
+      <section className="mt-6 grid gap-4 sm:grid-cols-3">
+        {[
+          ['Opens', '00:00 UTC'],
+          ['Closes', '23:59 UTC'],
+          ['Archived', 'Permanently'],
+        ].map(([label, value]) => (
+          <div key={label} className="card p-6">
+            <p className="t-caption uppercase text-black/40">{label}</p>
+            <p className="mt-2 text-[22px] font-semibold tracking-[-0.242px]">{value}</p>
+          </div>
+        ))}
+      </section>
+    </ContentPage>
+  );
+}

@@ -1,1 +1,58 @@
-import Link from 'next/link';import {Bot,Search, Megaphone,Gamepad2,Code2,Leaf,BookOpen,ArrowUpRight} from 'lucide-react';import {ContentPage,PageIntro} from '@/components/SitePrimitives';const cats=[['AI & Automation',Bot],['SEO & Discovery',Search],['Marketing & Growth',Megaphone],['Games & Entertainment',Gamepad2],['Developer Tools',Code2],['Climate & Impact',Leaf],['Learning & Education',BookOpen]];export default function Categories(){return <ContentPage><PageIntro eyebrow="Find your lane" title="Categories"><p>Every category has its own focused ranking. Choose one to discover what is gaining verified momentum.</p></PageIntro><div className="mb-8 rounded-[28px] bg-[#f4f1ee] p-6"><b><span className="text-[#fb923c]">●</span> Most active categories</b><p className="mt-1 text-sm text-[#756e69]">Ranks will appear here as the community adds and boosts products.</p></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{cats.map(([name,Icon])=><Link href={`/submit?category=${encodeURIComponent(name as string)}`} key={name as string} className="group rounded-[24px] border border-[#e7ded8] bg-white p-6 transition hover:-translate-y-1 hover:border-[#fb923c] hover:shadow-lg"><Icon className="text-[#fb923c]"/><div className="mt-5 flex items-center justify-between"><h2 className="font-black">{name as string}</h2><ArrowUpRight className="transition group-hover:translate-x-1 group-hover:-translate-y-1" size={18}/></div><p className="mt-2 text-sm text-[#817a75]">No ranked products yet</p></Link>)}</div></ContentPage>}
+import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
+import { ContentPage, PageIntro } from '@/components/SitePrimitives';
+
+const cats: [string, string][] = [
+  ['AI & Automation', 'var(--color-marigold)'],
+  ['SEO & Discovery', 'var(--color-sky-wash)'],
+  ['Marketing & Growth', 'var(--color-coral)'],
+  ['Games & Entertainment', 'var(--color-midnight-ink)'],
+  ['Developer Tools', 'var(--color-sky-tint)'],
+  ['Climate & Impact', 'var(--color-mocha)'],
+  ['Learning & Education', 'var(--color-saffron)'],
+];
+
+export default function Categories() {
+  return (
+    <ContentPage>
+      <PageIntro eyebrow="Find your lane" title="Categories">
+        Every category has its own focused ranking. Choose one to discover what is gaining verified
+        momentum.
+      </PageIntro>
+
+      <div className="card mb-6 flex flex-wrap items-center justify-between gap-3 p-6">
+        <div>
+          <h2 className="t-heading-sm text-ink-black">Most active categories</h2>
+          <p className="t-body-sm mt-1">
+            Ranks appear here as the community adds and boosts products.
+          </p>
+        </div>
+        <Link href="/submit" className="btn btn-ghost">
+          Add a product
+        </Link>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cats.map(([name, color]) => (
+          <Link
+            key={name}
+            href={`/submit?category=${encodeURIComponent(name)}`}
+            className="transition-notion card group overflow-hidden hover:border-black/20"
+          >
+            <div className="h-24" style={{ background: color }} />
+            <div className="p-6">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="t-heading-sm text-ink-black">{name}</h3>
+                <ArrowUpRight
+                  className="transition-notion shrink-0 text-black/40 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-notion-blue"
+                  size={18}
+                />
+              </div>
+              <p className="t-body-sm mt-2">No ranked products yet</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </ContentPage>
+  );
+}

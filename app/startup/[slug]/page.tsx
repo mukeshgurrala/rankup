@@ -1,2 +1,76 @@
-import {notFound} from 'next/navigation';import Link from 'next/link';import {ArrowLeft,ArrowUpRight,CheckCircle2,Globe,TrendingUp} from 'lucide-react';import {money} from '@/lib/data';import {getLeaderboard,getStartupBySlug} from '@/lib/queries';import {StartupLogo} from '@/components/StartupLogo';export const dynamic='force-dynamic';export default async function Detail({params}:{params:Promise<{slug:string}>}){const {slug}=await params;const [s,startups]=await Promise.all([getStartupBySlug(slug),getLeaderboard()]);if(!s)notFound();const rank=startups.findIndex(x=>x.id===s.id)+1;return <main className="grain min-h-[80vh]"><div className="mx-auto max-w-4xl px-5 py-12"><Link href="/" className="mb-8 inline-flex items-center gap-2 font-bold"><ArrowLeft size={18}/> Back to leaderboard</Link><div className="card overflow-hidden shadow-brutal"><div className="border-b-2 border-[#10221b] bg-[#c9ff57] p-7 sm:p-10"><div className="flex flex-col gap-6 sm:flex-row sm:items-center"><StartupLogo domain={s.domain} name={s.name} className="h-24 w-24 rounded-3xl text-3xl"/><div className="flex-1"><span className="rounded-full border-2 border-[#10221b] bg-white px-3 py-1 text-xs font-black uppercase">{s.category}</span><h1 className="mt-3 text-4xl font-black sm:text-5xl">{s.name}</h1><p className="mt-2 text-lg">{s.description}</p></div></div></div><div className="grid gap-7 p-7 sm:grid-cols-[1fr_260px] sm:p-10"><div><h2 className="text-2xl font-black">About</h2><p className="mt-3 leading-relaxed text-[#64736b]">{s.description} Built by ambitious founders and supported by the RankUp community.</p><a href={s.url} target="_blank" rel="noopener noreferrer" className="btn btn-primary mt-6">Visit website <ArrowUpRight size={18}/></a></div><aside className="rounded-2xl border-2 border-[#10221b] bg-[#f5f1e8] p-5"><div className="flex items-center gap-2 text-sm font-bold"><TrendingUp size={18}/> Current rank</div><div className="mt-1 text-4xl font-black">#{rank}</div><hr className="my-5 border-[#a7b4ac]"/><div className="text-sm font-bold">Verified boost</div><div className="mt-1 text-2xl font-black text-[#173e2d]">{money(s.total)}</div><div className="mt-3 flex items-center gap-2 text-xs text-[#476053]"><CheckCircle2 size={16}/> Payment verified</div><div className="mt-4 flex items-center gap-2 text-sm"><Globe size={16}/>{s.domain}</div></aside></div></div></div></main>
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft, ArrowUpRight, CheckCircle2, Globe } from 'lucide-react';
+import { money } from '@/lib/data';
+import { getLeaderboard, getStartupBySlug } from '@/lib/queries';
+import { StartupLogo } from '@/components/StartupLogo';
+
+export const dynamic = 'force-dynamic';
+
+export default async function Detail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const [s, startups] = await Promise.all([getStartupBySlug(slug), getLeaderboard()]);
+  if (!s) notFound();
+  const rank = startups.findIndex((x) => x.id === s.id) + 1;
+
+  return (
+    <main className="min-h-[80vh] bg-paper-warmth">
+      <div className="mx-auto max-w-[900px] px-6 py-12 sm:py-16">
+        <Link href="/" className="btn btn-text -ml-[15px] mb-8">
+          <ArrowLeft size={16} /> Back to leaderboard
+        </Link>
+
+        <div className="card overflow-hidden">
+          <div className="p-6 sm:p-8" style={{ background: 'var(--color-sky-tint)' }}>
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              <StartupLogo domain={s.domain} name={s.name} className="h-20 w-20 rounded-cards" />
+              <div className="min-w-0 flex-1">
+                <span className="pill bg-pure-white text-ink-black">{s.category}</span>
+                <h1 className="t-display-sm mt-3 text-ink-black">{s.name}</h1>
+                <p className="t-body mt-2">{s.description}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-6 p-6 sm:grid-cols-[1fr_260px] sm:p-8">
+            <div>
+              <h2 className="t-heading-sm text-ink-black">About</h2>
+              <p className="t-body mt-3">
+                {s.description} Built by ambitious founders and supported by the RankUp community.
+              </p>
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-primary btn-lg mt-6"
+              >
+                Visit website <ArrowUpRight size={18} />
+              </a>
+            </div>
+
+            <aside className="card bg-paper-warmth p-5">
+              <p className="t-caption uppercase text-black/40">Current rank</p>
+              <div className="mt-1 text-[40px] font-semibold leading-[1.04] tracking-[-1.4px]">
+                #{rank}
+              </div>
+
+              <hr className="my-5 border-0 border-t border-hairline" />
+
+              <p className="t-caption uppercase text-black/40">Verified boost</p>
+              <div className="mt-1 text-[22px] font-semibold tracking-[-0.242px] text-notion-blue">
+                {money(s.total)}
+              </div>
+
+              <div className="mt-4 flex items-center gap-2 text-[12px] leading-[1.33] text-black/60">
+                <CheckCircle2 size={14} /> Payment verified
+              </div>
+              <div className="mt-2 flex items-center gap-2 text-[12px] leading-[1.33] text-black/60">
+                <Globe size={14} /> {s.domain}
+              </div>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
 }

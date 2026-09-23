@@ -1,2 +1,28 @@
-import Link from 'next/link';import {Check,ArrowRight} from 'lucide-react';export default function Success(){return <main className="grain grid min-h-[70vh] place-items-center px-5"><div className="card max-w-lg p-10 text-center shadow-brutal"><div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-[#10221b] bg-[#c9ff57]"><Check size={40}/></div><h1 className="mt-6 text-4xl font-black">Boost verified!</h1><p className="mt-3 text-[#64736b]">Your support is live and the leaderboard has been updated.</p><Link href="/" className="btn btn-primary mt-7">See the leaderboard <ArrowRight size={18}/></Link></div></main>
+import Link from 'next/link';
+import { ArrowRight, Check } from 'lucide-react';
+import { MarkRow } from '@/components/Marks';
+
+export default function Success() {
+  return (
+    <main className="grid min-h-[70vh] place-items-center bg-paper-warmth px-6 py-20">
+      <div className="card max-w-lg p-8 text-center sm:p-12">
+        <MarkRow count={3} className="mb-8" />
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-pills bg-notion-blue text-pure-white">
+          <Check size={28} />
+        </div>
+        <h1 className="t-heading mt-6 text-ink-black">Boost verified</h1>
+        <p className="t-editorial mx-auto mt-3 max-w-xs">
+          Your support is live and the leaderboard has been updated.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-2">
+          <Link href="/" className="btn btn-primary btn-lg">
+            See the leaderboard <ArrowRight size={18} />
+          </Link>
+          <Link href="/submit" className="btn btn-ghost btn-lg">
+            Boost again
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
 }
